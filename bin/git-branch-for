@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require_relative './opts_parsing'
+require_relative '../issue'
+
+parser = OptsParsing.new do |opts, option_storage|
+  opts.banner = "Usage: #{$PROGRAM_NAME} [options] ISSUE_KEY"
+end.parse
+
+issue_key = ARGV.first
+
+if issue_key.nil? || issue_key.strip.empty?
+  parser.exit_code = 1
+  $stderr.puts "Missing issue key"
+  parser.parse args: %w[--help]
+end
+
+if parser.option?(:token)
+  parser.exit_code = 3
+  $stderr.puts "Missing token"
+  parser.parse args: %w[--help]
+end
+
+`git checkout -b #{Issue.new(**parser.options).git_branch_for(issue_key)}`

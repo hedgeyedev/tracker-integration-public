@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require_relative './opts_parsing'
+require_relative '../issue'
+
+parser = OptsParsing.new do |opts, option_storage|
+  opts.banner = "Usage: #{$PROGRAM_NAME} [options] ISSUE_KEY [ISSUE_KEY...]"
+end.parse(args: ARGV)
+
+if ARGV.empty?
+  parser.exit_code = 1
+  $stderr.puts "Missing issue key"
+  parser.parse args: %w[--help]
+end
+
+if parser.option?(:token)
+  parser.exit_code = 3
+  $stderr.puts "Missing token"
+  parser.parse args: %w[--help]
+end
+
+ARGV.each do |issue_key|
+  issue = Issue.new(**parser.options).issue_details(issue_key)
+  puts "\e[97;45m\n\n  %s\n\e[0m" % issue.dig("fields", "summary")
+  puts "    \e[35massignee:\e[0m %s" % issue.dig("fields", "assignee", "displayName")
+  puts "    \e[35mstatus:\e[0m %s" % issue.dig("fields", "status", "name")
+  puts "    \e[35mpriority:\e[0m %s" % issue.dig("fields", "priority", "name")
+  puts "    \e[35mcreated \e[0mat: %s" % Time.parse(issue.dig("fields", "created")).strftime("%F %T %z")
+  puts "    \e[35mupdated \e[0mat: %s" % Time.parse(issue.dig("fields", "updated")).strftime("%F %T %z")
+  puts "    \e[35mdescription:\e[0m"
+  issue.dig("fields", "description")&.split("\n")&.each { |e| puts "#{" " * 6}#{e}" }
+end
