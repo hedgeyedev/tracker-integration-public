@@ -5,7 +5,7 @@ require_relative '../issue'
 
 parser = OptsParsing.new do |opts, option_storage|
   opts.banner = "Usage: #{$PROGRAM_NAME} [options] ISSUE_KEY"
-end.parse
+end.parse(args: ARGV)
 
 issue_key = ARGV.first
 
