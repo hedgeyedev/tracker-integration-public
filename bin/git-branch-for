@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require_relative './opts_parsing'
-require_relative '../issue'
+require_relative '../jira-api/issue'
 
 parser = OptsParsing.new do |opts, option_storage|
   opts.banner = "Usage: #{$PROGRAM_NAME} [options] ISSUE_KEY"
